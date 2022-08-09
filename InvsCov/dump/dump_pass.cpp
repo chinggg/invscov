@@ -19,7 +19,6 @@
 #include "llvm/IR/Argument.h"
 #include "llvm/IR/Attributes.h"
 #include "llvm/IR/BasicBlock.h"
-#include "llvm/IR/CallSite.h"
 #include "llvm/IR/Comdat.h"
 #include "llvm/IR/Constant.h"
 #include "llvm/IR/Constants.h"
@@ -713,7 +712,7 @@ bool InvsCovDump::instrumentFunction() {
     CntGbl->setInitializer(ConstantInt::get(Int64Ty, 0, true));
     
     IRBuilder<> CntIRB(BB->getTerminator());
-    LoadInst* CntL = CntIRB.CreateLoad(CntGbl);
+    LoadInst* CntL = CntIRB.CreateLoad(CntGbl->getValueType(), CntGbl);
     CntL->setMetadata(M.getMDKindID("nosanitize"), MDNode::get(*C, None));
     StoreInst* CntS = CntIRB.CreateStore(CntIRB.CreateAdd(CntL, ConstantInt::get(Int64Ty, 1, true)), CntGbl);
     CntS->setMetadata(M.getMDKindID("nosanitize"), MDNode::get(*C, None));

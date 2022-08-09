@@ -25,7 +25,6 @@
 #include "llvm/ADT/iterator.h"
 #include "llvm/ADT/Statistic.h"
 #include "llvm/IR/Argument.h"
-#include "llvm/IR/CallSite.h"
 #include "llvm/IR/ConstantRange.h"
 #include "llvm/IR/Constants.h"
 #include "llvm/IR/Function.h"
@@ -38,8 +37,7 @@
 #include "llvm/IR/Use.h"
 #include "llvm/IR/User.h"
 #include "llvm/IR/Value.h"
-#include "llvm/PassAnalysisSupport.h"
-#include "llvm/PassSupport.h"
+#include "llvm/Pass.h"
 #include "llvm/Support/FileSystem.h"
 
 int __builtin_clz(unsigned int);
@@ -434,20 +432,16 @@ void InterProceduralRA<CGT>::MatchParametersAndReturnValues(
       continue;
     }
 
-    Instruction *caller = cast<Instruction>(Us);
+    CallInst *call = cast<CallInst>(Us);
 
-    CallSite CS(caller);
-
-    if (!CS.isCallee(&U)) {
-      continue;
-    }
+    Function *caller = call->getCaller();
 
     // Iterate over the real parameters and put them in the data structure
-    CallSite::arg_iterator AI;
-    CallSite::arg_iterator EI;
+    Function::arg_iterator AI;
+    Function::arg_iterator EI;
 
-    for (i = 0, AI = CS.arg_begin(), EI = CS.arg_end(); AI != EI; ++i, ++AI) {
-      parameters[i].second = *AI;
+    for (i = 0, AI = caller->arg_begin(), EI = caller->arg_end(); AI != EI; ++i, ++AI) {
+      parameters[i].second = AI;
     }
 
     // // Do the interprocedural construction of CG
@@ -3281,7 +3275,7 @@ void ConstraintGraph::print(const Function &F, raw_ostream &OS) const {
 void ConstraintGraph::printToFile(const Function &F,
                                   const std::string &FileName) {
   std::error_code ErrorInfo;
-  raw_fd_ostream file(FileName, ErrorInfo, sys::fs::F_Text);
+  raw_fd_ostream file(FileName, ErrorInfo);
 
   if (!file.has_error()) {
     print(F, file);
