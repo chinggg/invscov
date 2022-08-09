@@ -19,7 +19,6 @@
 #include "llvm/IR/Argument.h"
 #include "llvm/IR/Attributes.h"
 #include "llvm/IR/BasicBlock.h"
-#include "llvm/IR/CallSite.h"
 #include "llvm/IR/Comdat.h"
 #include "llvm/IR/Constant.h"
 #include "llvm/IR/Constants.h"
@@ -84,9 +83,8 @@
 #include "json.hpp"
 
 using namespace llvm;
-using json = nlohmann::json;
 
-static json* Constrs = nullptr;
+static nlohmann::json * Constrs = nullptr;
 
 static void ReplaceAll(std::string& S, std::string P, std::string R) {
   size_t pos = S.find(P);
@@ -207,7 +205,7 @@ void InvsCovInstrument::initialize() {
     if (getenv("INVSCOV_OUTPUT_PATH"))
       invscov_constrs_path = getenv("INVSCOV_OUTPUT_PATH") + std::string("/constrs.json");
     
-    Constrs = new json();
+    Constrs = new nlohmann::json();
     
     errs() << invscov_constrs_path << "\n";
     std::ifstream f(invscov_constrs_path);
@@ -529,7 +527,7 @@ bool InvsCovInstrument::instrumentFunction() {
   
     IRBuilder<> IRB(BB->getTerminator());
     
-    Instruction* PrevLoc = IRB.CreateLoad(AFLPrevLoc);
+    Instruction* PrevLoc = IRB.CreateLoad(AFLPrevLoc->getValueType(), AFLPrevLoc);
     PrevLoc->setMetadata(M.getMDKindID("nosanitize"), MDNode::get(*C, None));
     
     Value* X = PrevLoc;

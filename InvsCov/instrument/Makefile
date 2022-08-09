@@ -1,7 +1,7 @@
-LLVM_CONFIG ?= llvm-config-10
+LLVM_CONFIG ?= llvm-config
 
 LLVMVER  = $(shell $(LLVM_CONFIG) --version 2>/dev/null )
-LLVM_UNSUPPORTED = $(shell $(LLVM_CONFIG) --version 2>/dev/null | egrep -q '^3\.[0-7]|^1[2-9]' && echo 1 || echo 0 )
+LLVM_UNSUPPORTED = $(shell $(LLVM_CONFIG) --version 2>/dev/null | egrep -q '^3\.[0-7]|^1[5-9]' && echo 1 || echo 0 )
 LLVM_NEW_API = $(shell $(LLVM_CONFIG) --version 2>/dev/null | egrep -q '^1[0-9]' && echo 1 || echo 0 )
 LLVM_MAJOR = $(shell $(LLVM_CONFIG) --version 2>/dev/null | sed 's/\..*//')
 LLVM_BINDIR = $(shell $(LLVM_CONFIG) --bindir 2>/dev/null)
@@ -14,7 +14,7 @@ ifeq "$(LLVMVER)" ""
 endif
 
 ifeq "$(LLVM_UNSUPPORTED)" "1"
-  $(warning llvm_mode only supports llvm versions 3.8.0 up to 11)
+  $(warning llvm_mode only supports llvm versions 3.8.0 up to 14)
 endif
 
 ifeq "$(LLVM_APPLE)" "1"
