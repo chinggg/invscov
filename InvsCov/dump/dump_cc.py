@@ -36,7 +36,7 @@ def cc_mode():
     args += sys.argv[1:]
 
     args += [
-      "-Xclang", "-load", "-Xclang", os.path.join(script_dir, "dump_pass.so"),
+      "-flegacy-pass-manager", "-Xclang", "-load", "-Xclang", os.path.join(script_dir, "dump_pass.so"),
     ]
 
     if os.getenv("AFL_USE_ASAN"):
